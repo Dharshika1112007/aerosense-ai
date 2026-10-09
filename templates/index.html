@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AeroSense AI — Air Quality Intelligence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <a class="brand" href="#"><span class="brand-mark">✦</span><span><b>AeroSense<span class="accent"> AI</span></b><small>Air intelligence, made clear</small></span></a>
+    <div class="side-label">WORKSPACE</div>
+    <button class="nav-item active" data-scroll="overview">◈ <span>Overview</span></button>
+    <button class="nav-item" data-scroll="map-section">⌖ <span>Regional map</span></button>
+    <button class="nav-item" data-scroll="trends-section">⌁ <span>Trends & forecast</span></button>
+    <button class="nav-item" data-scroll="insights">✧ <span>Action insights</span></button>
+    <div class="sidebar-bottom"><span class="pulse"></span><span>Data connection</span><b id="connectionLabel">Ready</b><p>Provider estimates<br>Forecasts are estimates</p></div>
+  </aside>
+  <main class="main">
+    <header class="topbar">
+      <div><div class="eyebrow">ENVIRONMENTAL INTELLIGENCE / 01</div><h1>Know the air around you.</h1><p class="subtitle">Explore pollution patterns. Understand what may come next.</p></div>
+      <div class="top-actions"><span class="live-dot"></span><span>Open data</span><button class="avatar">AS</button></div>
+    </header>
+    <section class="search-panel" id="overview">
+      <div class="search-copy"><span class="mini-tag">REGION EXPLORER</span><h2>One region. A clearer picture.</h2><p>Choose a city to inspect available pollutant readings and recent AQI movement.</p></div>
+      <div class="search-controls"><label for="cityInput">Search a city or region</label><div class="search-row"><input id="cityInput" value="Chennai" placeholder="e.g. Chennai, Bengaluru, Delhi"><button id="searchBtn" class="btn secondary">Find region</button></div><div id="searchResults" class="search-results"></div><div class="selected-line">Selected region <b id="selectedRegion">Chennai, India</b></div><button id="loadBtn" class="btn primary">↗ &nbsp; Load air quality</button></div>
+    </section>
+    <div id="status" class="status" role="status">Choose a region and load available air-quality data.</div>
+    <section class="metrics-grid">
+      <article class="card aqi-card"><div class="card-head"><span>Current US AQI</span><span class="tiny-icon">◉</span></div><div class="aqi-layout"><div id="aqiRing" class="aqi-ring"><div><strong id="aqiValue">—</strong><small>AQI</small></div></div><div><span id="aqiBadge" class="badge neutral">Awaiting data</span><h3 id="aqiTitle">No reading yet</h3><p id="aqiAdvice">Load a region to view its latest available air-quality reading.</p></div></div><div class="data-time" id="dataTime">No timestamp</div></article>
+      <article class="card pollutant-card"><div class="card-head"><span>Pollutant snapshot</span><span class="muted">µg/m³ where applicable</span></div><div class="pollutant-grid">
+        <div class="pollutant"><span>PM₂.₅</span><b id="pm25">—</b><small>Fine particles</small></div><div class="pollutant"><span>PM₁₀</span><b id="pm10">—</b><small>Coarse particles</small></div><div class="pollutant"><span>NO₂</span><b id="no2">—</b><small>Nitrogen dioxide</small></div><div class="pollutant"><span>SO₂</span><b id="so2">—</b><small>Sulphur dioxide</small></div><div class="pollutant"><span>O₃</span><b id="o3">—</b><small>Ozone</small></div><div class="pollutant"><span>CO</span><b id="co">—</b><small>Carbon monoxide</small></div>
+      </div><div class="muted footnote">Values depend on provider coverage and may be unavailable for some regions.</div></article>
+    </section>
+    <section class="content-grid" id="map-section">
+      <article class="card map-card"><div class="section-head"><div><span class="mini-tag">GEO VIEW</span><h2>Regional airscape</h2></div><span class="map-coords" id="coords">Select a location</span></div><div id="map"></div><div class="map-footer"><span><i class="legend-dot good"></i>Selected region</span><span>Map © OpenStreetMap contributors</span></div></article>
+      <article class="card insight-card" id="insights"><div class="section-head"><div><span class="mini-tag">ACTION INTELLIGENCE</span><h2>What it means</h2></div><span class="spark">✧</span></div><div class="insight-feature"><div class="insight-icon">✦</div><div><b id="insightTitle">Your region, decoded</b><p id="insightText">Load data to receive a plain-language summary based on the current AQI band.</p></div></div><div class="recommendation-list" id="recommendations"><div class="recommendation"><span>01</span><p>Use the latest local public-health guidance during pollution events.</p></div><div class="recommendation"><span>02</span><p>Keep indoor spaces ventilated when outdoor conditions are suitable.</p></div><div class="recommendation"><span>03</span><p>Check the trend before planning prolonged outdoor activity.</p></div></div><a class="source-link" href="https://cpcb.nic.in/" target="_blank" rel="noreferrer">Explore India's CPCB public information ↗</a></article>
+    </section>
+    <section class="content-grid charts-grid" id="trends-section">
+      <article class="card chart-card"><div class="section-head"><div><span class="mini-tag">LOOK BACK</span><h2>Pollution timeline</h2></div><span class="chart-note">Hourly AQI · up to 7 days</span></div><div class="chart-wrap"><canvas id="historyChart"></canvas></div></article>
+      <article class="card chart-card forecast-card"><div class="section-head"><div><span class="mini-tag">LOOK AHEAD</span><h2>24-hour trend estimate</h2></div><select id="forecastMetric" class="forecast-chip" aria-label="Choose forecast pollutant" style="background:#17253a;color:#c5b5ff"><option value="us_aqi">US AQI</option><option value="pm2_5">PM₂.₅</option><option value="pm10">PM₁₀</option><option value="nitrogen_dioxide">NO₂</option><option value="sulphur_dioxide">SO₂</option><option value="ozone">O₃</option><option value="carbon_monoxide">CO</option></select></div><div class="chart-wrap"><canvas id="forecastChart"></canvas></div><div class="model-note"><span class="pulse"></span><span id="modelLabel">Model details will appear after data loads.</span></div></article>
+      <article class="card chart-card"><div class="section-head"><div><span class="mini-tag">CHEMICAL PROFILE</span><h2>Pollutant composition</h2></div><span class="chart-note">Current available concentrations</span></div><div class="chart-wrap"><canvas id="compositionChart"></canvas></div><div class="model-note">Concentrations are shown in provider units. This is not a toxicity ranking because pollutants have different health thresholds.</div></article>
+    </section>
+    <section class="bottom-strip"><div><span class="bottom-icon">✧</span><div><b>Pollution-aware action intelligence</b><p>Readings + trend + practical guidance, in one place.</p></div></div><div class="disclaimer">Educational prototype · Forecasts are not official warnings or medical advice.</div></section>
+    <footer> AEROSENSE AI <span>Built for clearer environmental decisions</span><a href="https://open-meteo.com/en/docs/air-quality-api" target="_blank" rel="noreferrer">Data source & methodology ↗</a></footer>
+  </main>
+</div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+</body></html>
